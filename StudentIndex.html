@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>학습 기록 열람 시스템</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      overflow: hidden;
+    }
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 30px;
+      text-align: center;
+    }
+    .header h1 {
+      margin: 0 0 10px 0;
+      font-size: 2rem;
+    }
+    .content {
+      padding: 30px;
+    }
+    .login-form {
+      max-width: 400px;
+      margin: 0 auto;
+      text-align: center;
+    }
+    .form-group {
+      margin-bottom: 20px;
+      text-align: left;
+    }
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+      color: #333;
+    }
+    input[type="text"], input[type="password"], textarea {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      box-sizing: border-box;
+      font-size: 14px;
+      transition: border-color 0.3s;
+    }
+    input[type="text"]:focus, input[type="password"]:focus, textarea:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+    button {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 12px 30px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: bold;
+      transition: transform 0.2s;
+    }
+    button:hover {
+      transform: translateY(-2px);
+    }
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+      transform: none;
+    }
+    .data-section {
+      margin-top: 30px;
+    }
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .data-table th, .data-table td {
+      padding: 15px;
+      text-align: left;
+      border-bottom: 1px solid #e0e0e0;
+    }
+    .data-table th {
+      background: #f8f9fa;
+      font-weight: bold;
+      color: #333;
+    }
+    .data-table td {
+      vertical-align: top;
+    }
+    .hidden {
+      display: none;
+    }
+    .feedback-section {
+      background: #f8f9fa;
+      border-radius: 10px;
+      padding: 25px;
+      margin-top: 30px;
+    }
+    .feedback-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 30px;
+      margin-top: 20px;
+    }
+    .feedback-form h3 {
+      color: #333;
+      margin-bottom: 15px;
+    }
+    .help-text {
+      font-size: 13px;
+      color: #666;
+      margin-bottom: 8px;
+    }
+    textarea {
+      min-height: 100px;
+      resize: vertical;
+      font-family: inherit;
+    }
+    .competency-section {
+      background: white;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .competency-category {
+      margin-bottom: 20px;
+    }
+    .competency-category h4 {
+      color: #333;
+      margin-bottom: 12px;
+      font-size: 14px;
+    }
+    .competency-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 8px;
+    }
+    .competency-item {
+      background: #f0f4f8;
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+      transition: all 0.2s;
+      text-align: center;
+    }
+    .competency-item:hover {
+      background: #667eea;
+      color: white;
+      transform: translateY(-1px);
+    }
+    .alert {
+      padding: 15px;
+      border-radius: 8px;
+      margin: 15px 0;
+      font-weight: bold;
+    }
+    .alert-success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+    .alert-error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+    .loading {
+      text-align: center;
+      padding: 20px;
+      color: #666;
+    }
+    .spinner {
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #667eea;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      animation: spin 1s linear infinite;
+      display: inline-block;
+      margin-right: 10px;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    @media (max-width: 768px) {
+      .feedback-grid {
+        grid-template-columns: 1fr;
+      }
+      .competency-list {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>📚 학습 기록 열람 시스템</h1>
+      <p>나의 학습 기록을 확인하고 피드백을 남겨보세요</p>
+    </div>
+
+    <div class="content">
+      <!-- 로그인 섹션 -->
+      <div id="loginSection" class="login-form">
+        <h2>🔐 로그인</h2>
+        <p>학번과 비밀번호를 입력해주세요</p>
+        
+        <div class="form-group">
+          <label for="studentId">학번:</label>
+          <input type="text" id="studentId" placeholder="예: 2301">
+        </div>
+        
+        <div class="form-group">
+          <label for="password">비밀번호:</label>
+          <input type="password" id="password" placeholder="선생님이 제공한 비밀번호">
+        </div>
+        
+        <button onclick="login()" id="loginButton">로그인</button>
+        
+        <div id="loginAlert" style="display: none;"></div>
+      </div>
+
+      <!-- 데이터 표시 섹션 -->
+      <div id="dataSection" class="hidden">
+        <h2>📊 나의 학습 기록</h2>
+        <table id="dataTable" class="data-table"></table>
+        
+        <div class="feedback-section">
+          <h3>💬 피드백 작성</h3>
+          <p>현재 기록에 대한 의견을 자유롭게 남겨주세요. 여러분의 의견은 더 나은 기록 작성에 도움이 됩니다.</p>
+          
+          <div class="feedback-grid">
+            <div class="feedback-form">
+              <div class="form-group">
+                <label for="addContent">추가하고 싶은 내용:</label>
+                <div class="help-text">현재 기록에서 추가로 보완하고 싶은 내용을 작성해주세요</div>
+                <textarea id="addContent" placeholder="예: 프로젝트에서 리더 역할을 맡아 팀원들과 협력했던 경험도 포함해주세요"></textarea>
+              </div>
+              
+              <div class="form-group">
+                <label for="showSkills">드러내고 싶은 역량:</label>
+                <div class="help-text">오른쪽의 역량 목록에서 선택하거나 직접 입력하실 수 있습니다</div>
+                <textarea id="showSkills" placeholder="예: 창의적 사고 역량, 의사소통 역량"></textarea>
+              </div>
+              
+              <div class="form-group">
+                <label for="deleteContent">삭제하고 싶은 내용:</label>
+                <div class="help-text">현재 기록에서 제외하고 싶은 내용이 있다면 작성해주세요</div>
+                <textarea id="deleteContent" placeholder="예: 개인적인 어려움에 대한 내용은 제외해주세요"></textarea>
+              </div>
+              
+              <button onclick="submitFeedback()" id="feedbackButton">
+                📝 피드백 제출하기
+              </button>
+            </div>
+
+            <div class="competency-section">
+              <h3>💡 역량 참고 목록</h3>
+              <p style="font-size: 13px; color: #666; margin-bottom: 15px;">
+                클릭하면 '드러내고 싶은 역량'에 자동으로 추가됩니다
+              </p>
+              
+              <div class="competency-category">
+                <h4>🎯 핵심 역량</h4>
+                <div class="competency-list">
+                  <div class="competency-item" onclick="appendCompetency(this)">자기관리 역량</div>
+                  <div class="competency-item" onclick="appendCompetency(this)">지식정보처리 역량</div>
+                  <div class="competency-item" onclick="appendCompetency(this)">창의적 사고 역량</div>
+                  <div class="competency-item" onclick="appendCompetency(this)">심미적 감성 역량</div>
+                  <div class="competency-item" onclick="appendCompetency(this)">의사소통 역량</div>
+                  <div class="competency-item" onclick="appendCompetency(this)">공동체 역량</div>
+                </div>
+              </div>
+
+              <div class="competency-category">
+                <h4>📚 교과 역량</h4>
+                <div class="competency-list">
+                  <div class="competency-item" onclick="appendCompetency(this)">비판적 문해 역량</div>
+                  <div class="competency-item" onclick="appendCompetency(this)">자료·정보 활용 역량</div>
+                  <div class="competency-item" onclick="appendCompetency(this)">문화 향유 역량</div>
+                  <div class="competency-item" onclick="appendCompetency(this)">언어 소통 역량</div>
+                  <div class="competency-item" onclick="appendCompetency(this)">공감·협력 역량</div>
+                </div>
+              </div>
+
+              <div class="competency-category">
+                <h4>🌟 기타 역량</h4>
+                <div class="competency-list">
+                  <div class="competency-item" onclick="appendCompetency(this)">디지털 리터러시</div>
+                  <div class="competency-item" onclick="appendCompetency(this)">문화적 감수성</div>
+                  <div class="competency-item" onclick="appendCompetency(this)">윤리적 판단력</div>
+                  <div class="competency-item" onclick="appendCompetency(this)">글로벌 시민의식</div>
+                  <div class="competency-item" onclick="appendCompetency(this)">자기주도적 학습능력</div>
+                  <div class="competency-item" onclick="appendCompetency(this)">융합적 사고력</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function login() {
+      const studentId = document.getElementById('studentId').value.trim();
+      const password = document.getElementById('password').value.trim();
+      const button = document.getElementById('loginButton');
+      const alert = document.getElementById('loginAlert');
+      
+      if (!studentId || !password) {
+        showAlert('학번과 비밀번호를 모두 입력해주세요.', 'error');
+        return;
+      }
+      
+      button.disabled = true;
+      button.innerHTML = '<span class="spinner"></span>로그인 중...';
+      
+      google.script.run
+        .withSuccessHandler(function(isValid) {
+          if (isValid) {
+            loadStudentData(studentId);
+          } else {
+            showAlert('학번 또는 비밀번호가 올바르지 않습니다. 선생님께 확인해주세요.', 'error');
+            button.disabled = false;
