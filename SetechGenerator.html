@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <base target="_top">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            margin: 0;
+        }
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+        input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+        .info-box {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .info-box h4 {
+            margin: 0 0 10px 0;
+            color: #495057;
+        }
+        .info-box ul {
+            margin: 8px 0;
+            padding-left: 20px;
+        }
+        .info-box li {
+            margin-bottom: 4px;
+            font-size: 14px;
+        }
+        .button-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .generate-button {
+            background-color: #28a745;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .generate-button:hover {
+            background-color: #218838;
+        }
+        .generate-button:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 4px;
+        }
+        .success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .loading {
+            background-color: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+            text-align: center;
+        }
+        .spinner {
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #007bff;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-right: 8px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .help-text {
+            font-size: 12px;
+            color: #6c757d;
+            margin-top: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h3>🎯 세특 자동 생성</h3>
+        
+        <div class="info-box">
+            <h4>📋 생성 조건</h4>
+            <ul>
+                <li>학생의 성장과 발달이 드러나도록 작성</li>
+                <li>구체적인 역량을 명시</li>
+                <li>관찰 중심 서술 ('-음', '-함' 어미)</li>
+                <li>한 단락, 약 300자 분량</li>
+                <li>교사 관찰 관점에서 서술</li>
+            </ul>
+        </div>
+        
+        <div class="form-group">
+            <label for="apiKey">OpenAI API Key:</label>
+            <input type="password" id="apiKey" placeholder="sk-..." required>
+            <div class="help-text">자기평가서 생성 시 사용한 동일한 API 키를 입력하세요</div>
+        </div>
+        
+        <div class="info-box">
+            <h4>⚠️ 주의사항</h4>
+            <ul>
+                <li>응답 데이터가 있는 상태에서 실행하세요</li>
+                <li>생성 중에는 페이지를 벗어나지 마세요</li>
+                <li>완료 후 반드시 결과를 검토하세요</li>
+                <li>API 사용량에 따라 비용이 발생할 수 있습니다</li>
+            </ul>
+        </div>
+        
+        <div class="button-container">
+            <button class="generate-button" onclick="generateSetech()" id="generateButton">
+                ⚡ 세특 자동 생성 시작
+            </button>
+        </div>
+        
+        <div id="result" class="result" style="display: none;"></div>
+    </div>
+
+    <script>
+        function generateSetech() {
+            const apiKey = document.getElementById('apiKey').value.trim();
+            
+            if (!apiKey) {
+                showError('API 키를 입력해주세요.');
+                return;
+            }
+            
+            if (!apiKey.startsWith('sk-')) {
+                showError('올바른 OpenAI API 키를 입력해주세요. (sk-로 시작해야 함)');
+                return;
+            }
+            
+            const button = document.getElementById('generateButton');
+            const result = document.getElementById('result');
+            
+            button.disabled = true;
+            button.innerHTML = '<span class="spinner"></span>생성 중...';
+            
+            result.style.display = 'block';
+            result.className = 'result loading';
+            result.innerHTML = `
+                <div class="spinner"></div>
+                <strong>세특을 생성하고 있습니다...</strong>
+                <p>응답 데이터를 분석하여 개별 학생별 세특을 생성 중입니다.</p>
+                <p>학생 수에 따라 시간이 소요될 수 있습니다. (약 1-3분)</p>
+            `;
+            
+            google.script.run
+                .withSuccessHandler(handleSuccess)
+                .withFailureHandler(handleError)
+                .executeSetechGeneration(apiKey);
+        }
+        
+        function handleSuccess(result) {
+            const resultDiv = document.getElementById('result');
+            const button = document.getElementById('generateButton');
+            
+            button.disabled = false;
+            button.innerHTML = '⚡ 세특 자동 생성 시작';
+            
+            if (result.success) {
+                resultDiv.className = 'result success';
+                resultDiv.innerHTML = `
+                    <h4>✅ 세특 생성 완료!</h4>
+                    <p><strong>${result.message}</strong></p>
+                    <p>응답 관리 스프레드시트에서 생성된 세특을 확인하세요.</p>
+                    <hr style="margin: 15px 0;">
+                    <p><strong>다음 단계:</strong> ${result.nextStep}</p>
+                `;
+            } else {
+                showError(result.message);
+            }
+        }
+        
+        function handleError(error) {
+            const button = document.getElementById('generateButton');
+            button.disabled = false;
+            button.innerHTML = '⚡ 세특 자동 생성 시작';
+            
+            showError('세특 생성 중 오류가 발생했습니다: ' + error);
+        }
+        
+        function showError(message) {
+            const result = document.getElementById('result');
+            result.style.display = 'block';
+            result.className = 'result error';
+            result.innerHTML = `
+                <h4>❌ 오류 발생</h4>
+                <p>${message}</p>
+                <hr style="margin: 15px 0;">
+                <p><strong>해결 방법:</strong></p>
+                <ul>
+                    <li>API 키가 올바른지 확인</li>
+                    <li>OpenAI 계정 잔액 확인</li>
+                    <li>응답 데이터가 있는지 확인</li>
+                    <li>잠시 후 다시 시도</li>
+                </ul>
+            `;
+        }
+    </script>
+</body>
+</html>
