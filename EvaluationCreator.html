@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <base target="_top">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 0;
+            margin: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            padding: 20px;
+            max-width: 550px;
+            margin: 0 auto;
+        }
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+        .header h2 {
+            margin: 0 0 10px 0;
+            font-size: 1.8rem;
+        }
+        .header p {
+            margin: 0;
+            opacity: 0.9;
+        }
+        .selection-area {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .option-cards {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        .option-card {
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            background: #fafafa;
+        }
+        .option-card:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+        }
+        .option-card.selected {
+            border-color: #667eea;
+            background: #f0f4ff;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+        .option-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+        .option-title {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        .option-desc {
+            font-size: 13px;
+            color: #666;
+            line-height: 1.4;
+        }
+        .form-section {
+            margin-top: 20px;
+            display: none;
+        }
+        .form-section.active {
+            display: block;
+        }
+        .form-group {
+            margin-bottom: 18px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: bold;
+            color: #333;
+        }
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        textarea {
+            min-height: 80px;
+            resize: vertical;
+            font-family: inherit;
+        }
+        .help-text {
+            font-size: 12px;
+            color: #666;
+            margin-top: 4px;
+            line-height: 1.3;
+        }
+        .button-area {
+            text-align: center;
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+        }
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 0 5px;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        .btn-primary:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .btn-secondary {
+            background: #f5f5f5;
+            color: #666;
+            border: 1px solid #ddd;
+        }
+        .btn-secondary:hover {
+            background: #e8e8e8;
+        }
+        .loading {
+            text-align: center;
+            padding: 20px;
+            display: none;
+        }
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-right: 10px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            display: none;
+        }
+        .result.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .result.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .link-section {
+            margin-top: 15px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        .link-section h4 {
+            margin: 0 0 10px 0;
+            color: #495057;
+        }
+        .link-section a {
+            display: block;
+            margin-bottom: 8px;
+            color: #667eea;
+            text-decoration: none;
+            padding: 8px;
+            background: white;
+            border-radius: 4px;
+            border: 1px solid #e0e0e0;
+        }
+        .link-section a:hover {
+            background: #f0f4ff;
+            border-color: #667eea;
+        }
+        .link-desc {
+            font-size: 12px;
+            color: #6c757d;
+            margin-top: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>🎯 자기평가서 생성</h2>
+            <p>교과 또는 비교과 영역을 선택하여 맞춤형 자기평가서를 생성하세요</p>
+        </div>
+
+        <div class="selection-area">
+            <!-- 영역 선택 -->
+            <div class="option-cards">
+                <div class="option-card" onclick="selectType('subject')">
+                    <div class="option-icon">📚</div>
+                    <div class="option-title">교과 세특</div>
+                    <div class="option-desc">국어, 수학, 과학 등<br>교과 수업 기반 평가</div>
+                </div>
+                <div class="option-card" onclick="selectType('non-subject')">
+                    <div class="option-icon">🎭</div>
+                    <div class="option-title">비교과 세특</div>
+                    <div class="option-desc">자율, 진로, 동아리,<br>행동특성 영역 평가</div>
+                </div>
+            </div>
+
+            <!-- 공통 입력 -->
+            <div class="form-group">
+                <label for="apiKey">OpenAI API Key *</label>
+                <input type="password" id="apiKey" placeholder="sk-..." required>
+                <div class="help-text">OpenAI 계정에서 발급받은 API 키를 입력하세요</div>
+            </div>
+
+            <!-- 교과 세특 입력 폼 -->
+            <div id="subject-form" class="form-section">
+                <h3 style="color: #333; margin-bottom: 15px;">📚 교과 세특 정보</h3>
+                
+                <div class="form-group">
+                    <label for="subject">교과명 *</label>
+                    <input type="text" id="subject" placeholder="예: 국어, 수학, 과학, 영어">
+                </div>
+                
+                <div class="form-group">
+                    <label for="achievement">성취기준 *</label>
+                    <textarea id="achievement" placeholder="해당 단원의 성취기준을 구체적으로 입력하세요"></textarea>
+                    <div class="help-text">예: 문학 작품을 읽고 갈래별 특성을 이해하며 문학적 소통을 한다</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="activities">학습 활동 내용 *</label>
+                    <textarea id="activities" placeholder="수업에서 진행한 주요 활동들을 입력하세요"></textarea>
+                    <div class="help-text">예: 소설 읽기, 등장인물 분석, 모둠 토론, 감상문 작성, 발표</div>
+                </div>
+            </div>
+
+            <!-- 비교과 세특 입력 폼 -->
+            <div id="non-subject-form" class="form-section">
+                <h3 style="color: #333; margin-bottom: 15px;">🎭 비교과 세특 정보</h3>
+                
+                <div class="form-group">
+                    <label for="category">영역 선택 *</label>
+                    <select id="category">
+                        <option value="">영역을 선택하세요</option>
+                        <option value="자율">자율활동</option>
+                        <option value="진로">진로활동</option>
+                        <option value="동아리">동아리활동</option>
+                        <option value="행발">행동특성 및 종합의견</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="nonSubjectActivities">활동 내용 *</label>
+                    <textarea id="nonSubjectActivities" placeholder="각 활동을 줄바꿈으로 구분하여 입력해주세요"></textarea>
+                    <div class="help-text">
+                        여러 활동을 입력할 경우 줄바꿈으로 구분해주세요.<br>
+                        예시:<br>
+                        학교 축제 부스 기획 및 운영<br>
+                        자율 동아리 과학 실험<br>
+                        교내 봉사활동
+                    </div>
+                </div>
+            </div>
+
+            <!-- 버튼 영역 -->
+            <div class="button-area">
+                <button class="btn btn-secondary" onclick="resetForm()">다시 선택</button>
+                <button class="btn btn-primary" onclick="generateEvaluation()" id="generateBtn" disabled>
+                    🚀 자기평가서 생성하기
+                </button>
+            </div>
+
+            <!-- 로딩 및 결과 -->
+            <div id="loading" class="loading">
+                <div class="spinner"></div>
+                <strong>자기평가서를 생성하고 있습니다...</strong>
+                <p>AI가 내용을 분석하여 질문을 만들고 있습니다. 잠시만 기다려주세요.</p>
+            </div>
+
+            <div id="result" class="result"></div>
+        </div>
+    </div>
+
+    <script>
+        let selectedType = null;
+
+        function selectType(type) {
+            selectedType = type;
+            
+            // 카드 선택 표시
+            document.querySelectorAll('.option-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            event.currentTarget.classList.add('selected');
+            
+            // 폼 표시/숨김
+            document.getElementById('subject-form').classList.remove('active');
+            document.getElementById('non-subject-form').classList.remove('active');
+            
+            if (type === 'subject') {
+                document.getElementById('subject-form').classList.add('active');
+            } else {
+                document.getElementById('non-subject-form').classList.add('active');
+            }
+            
+            // 버튼 활성화
+            document.getElementById('generateBtn').disabled = false;
+        }
+
+        function generateEvaluation() {
+            const apiKey = document.getElementById('apiKey').value.trim();
+            
+            if (!apiKey) {
+                alert('API 키를 입력해주세요.');
+                return;
+            }
+            
+            if (!selectedType) {
+                alert('영역을 선택해주세요.');
+                return;
+            }
+            
+            let data = { apiKey: apiKey };
+            
+            if (selectedType === 'subject') {
+                const subject = document.getElementById('subject').value.trim();
+                const achievement = document.getElementById('achievement').value.trim();
+                const activities = document.getElementById('activities').value.trim();
+                
+                if (!subject || !achievement || !activities) {
+                    alert('모든 필드를 입력해주세요.');
+                    return;
+                }
+                
+                data = {
+                    ...data,
+                    type: 'subject',
+                    subject: subject,
+                    achievement: achievement,
+                    activities: activities
+                };
+            } else {
+                const category = document.getElementById('category').value;
+                const activities = document.getElementById('nonSubjectActivities').value.trim();
+                
+                if (!category || !activities) {
+                    alert('모든 필드를 입력해주세요.');
+                    return;
+                }
+                
+                data = {
+                    ...data,
+                    type: 'non-subject',
+                    category: category,
+                    activities: activities
+                };
+            }
+            
+            // UI 상태 변경
+            const button = document.getElementById('generateBtn');
+            const loading = document.getElementById('loading');
+            const result = document.getElementById('result');
+            
+            button.disabled = true;
+            loading.style.display = 'block';
+            result.style.display = 'none';
+            
+            // API 호출
+            const functionName = selectedType === 'subject' ? 'createSubjectEvaluation' : 'createNonSubjectEvaluation';
+            
+            google.script.run
+                .withSuccessHandler(handleSuccess)
+                .withFailureHandler(handleError)
+                [functionName](data);
+        }
+
+        function handleSuccess(response) {
+            const loading = document.getElementById('loading');
+            const result = document.getElementById('result');
+            const button = document.getElementById('generateBtn');
+            
+            loading.style.display = 'none';
+            result.style.display = 'block';
+            
+            if (response.success) {
+                result.className = 'result success';
+                result.innerHTML = `
+                    <h4>✅ 자기평가서가 성공적으로 생성되었습니다!</h4>
+                    <p>${response.message}</p>
+                    
+                    <div class="link-section">
